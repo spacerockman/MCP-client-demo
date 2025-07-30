@@ -4,8 +4,6 @@ import os
 import logging
 import sys
 import subprocess
-
-# 经过验证的库
 import google.generativeai as genai
 from google.generativeai.types import Tool as GeminiTool, FunctionDeclaration
 from dotenv import load_dotenv
@@ -43,7 +41,6 @@ def load_config():
         return None, None, None
 
 def convert_summaries_to_gemini_tools(tool_summaries: list) -> list[GeminiTool]:
-    """使用工具摘要中详细的参数信息，为Gemini构建精确的工具蓝图。"""
     function_declarations = []
     for tool_summary in tool_summaries:
         input_schema = tool_summary.inputSchema
