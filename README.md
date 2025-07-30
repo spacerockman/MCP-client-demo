@@ -1,6 +1,6 @@
-# Gemini Playwright Bot
+# 多模型 AI 浏览器控制机器人
 
-这是一个 AI 驱动的聊天机器人，它使用 Google 的 Gemini 模型来理解自然语言指令，并通过 Playwright MCP 服务器来控制一个真实的浏览器，以完成网页自动化任务。
+这是一个 AI 驱动的聊天机器人，它可以使用 **Google Gemini**, **OpenAI API**, 或 **Azure OpenAI** 来理解自然语言指令，并通过 Playwright MCP 服务器来控制一个真实的浏览器，以完成网页自动化任务。
 
 这个机器人可以：
 -   导航到指定网页。
@@ -29,7 +29,6 @@ cd <your-project-directory>
 ```
 
 ### 步骤 2.2: 创建并激活 Python 虚拟环境
-我们推荐使用 `uv` 来创建虚拟环境。
 ```bash
 # 使用 uv 创建虚拟环境
 uv venv
@@ -40,7 +39,6 @@ source .venv/bin/activate
 # Windows
 .venv\Scripts\activate
 ```
-激活成功后，您的终端提示符前应该会有一个 `(.venv)` 标志。
 
 ### 步骤 2.3: 安装依赖
 使用 `requirements.txt` 文件来安装所有必需的 Python 库。
@@ -49,28 +47,35 @@ uv pip install -r requirements.txt
 ```
 
 ### 步骤 2.4: 创建配置文件
-您需要创建两个配置文件来存放密钥和服务器信息。
+您需要创建两个配置文件。
 
 1.  **创建 `.env` 文件 (用于 API 密钥)**
-    在项目根目录创建一个名为 `.env` 的文件，并填入您的 Google API 密钥。
+    在项目根目录创建一个名为 `.env` 的文件，并根据您要使用的服务，填入相应的 API 密钥。
     ```env
     # .env
-    GOOGLE_API_KEY="在这里粘贴您从 Google AI Studio 获取的 API 密钥"
+
+    # --- Google Gemini ---
+    GOOGLE_API_KEY="your-google-api-key"
+
+    # --- OpenAI ---
+    OPENAI_API_KEY="your-openai-api-key"
+
+    # --- Azure OpenAI ---
+    AZURE_OPENAI_KEY="your-azure-openai-service-key"
+    AZURE_OPENAI_ENDPOINT="https://your-azure-endpoint.openai.azure.com/"
+    AZURE_OPENAI_DEPLOYMENT_NAME="your-deployment-name"
+    AZURE_OPENAI_API_VERSION="2024-02-01"
     ```
 
 2.  **创建 `config.json` 文件 (用于服务器配置)**
-    在项目根目录创建一个名为 `config.json` 的文件。这个文件告诉程序如何启动 Playwright Docker 容器，以及启动后如何通过网络连接到它。
+    在项目根目录创建一个名为 `config.json` 的文件。**此文件只包含 MCP 服务器的配置。**
     ```json
     {
       "mcpServers": {
         "playwright": {
           "command": "docker",
           "args": [
-            "run",
-            "-i",
-            "--rm",
-            "--init",
-            "--pull=always",
+            "run", "-i", "--rm", "--init", "--pull=always",
             "-p", "8931:8931",
             "mcr.microsoft.com/playwright/mcp",
             "--port", "8931"
@@ -81,6 +86,21 @@ uv pip install -r requirements.txt
     }
     ```
 
+### 步骤 2.5: 在代码中选择要使用的 LLM
+打开 `chat.py` 文件，找到 `main()` 函数顶部的 `LLM_PROVIDER_TO_USE` 变量，并将其值修改为您想使用的服务。
+```python
+# chat.py
+
+async def main():
+    """主程序，根据代码内设置选择并运行 LLM 处理器。"""
+    
+    # *** 在这里选择要使用的 LLM 提供商 ***
+    # 可选项: "gemini", "openai", "azure"
+    LLM_PROVIDER_TO_USE = "gemini"
+    
+    # ... (代码其余部分)
+```
+
 ## 3. 运行机器人
 
 所有配置完成后，您只需一个命令即可启动整个系统。
@@ -88,10 +108,7 @@ uv pip install -r requirements.txt
 ```bash
 python3 chat.py
 ```
-**会发生什么？**
--   程序会首先在后台启动一个 Docker 容器。如果是第一次运行，Docker 会自动下载 `mcr.microsoft.com/playwright/mcp` 镜像，这可能需要一些时间。
--   等待几秒钟让容器内的服务启动后，程序会连接到它。
--   连接成功后，您会看到欢迎信息和机器人就绪的提示。
+程序会根据您在 `chat.py` 中设置的 `LLM_PROVIDER_TO_USE` 变量，自动选择并初始化正确的 AI 模型。
 
 ## 4. 如何使用
 
@@ -103,4 +120,4 @@ python3 chat.py
 -   **多步任务**: `打开 aomodel.com，然后搜索 '最新的AI新闻', 告诉我第一个结果的标题`
 
 **如何退出:**
-在 `👤 你:` 提示符后，输入 `exit` 或 `quit` 并按回车，程序将会安全地关闭 Docker 容器并退出。
+在 `👤 你:` 提示符后，输入 `exit` 或 `quit` 并按回车。
