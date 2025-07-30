@@ -7,6 +7,7 @@ import subprocess # 使用 Python 标准库来管理子进程
 
 # 经过验证的库
 import google.generativeai as genai
+# *** 这是最终的、决定性的修改：我们只从 .types 导入我们确认存在的类 ***
 from google.generativeai.types import Tool as GeminiTool, FunctionDeclaration
 from dotenv import load_dotenv
 from fastmcp import Client as MCPClient
@@ -80,7 +81,6 @@ async def main():
                 logging.error("🚨 无法从 MCP 服务器获取任何工具。")
                 return
             
-            # 打印获取到的工具列表
             logging.info(f"从服务器获取到 {len(tool_summaries)} 个工具的摘要。详情如下:")
             print("\n--- 🤖 可用工具列表 ---")
             for tool in tool_summaries:
@@ -91,17 +91,24 @@ async def main():
             gemini_tools = convert_summaries_to_gemini_tools(tool_summaries)
 
             genai.configure(api_key=api_key)
-            
-            # *** 模型名称指定处 ***
-            # 'gemini-1.5-flash-latest' 是对 "Flash" 系列最新模型的正确引用
+
+            system_instruction = (
+                "你是一个AI助手，你的任务是使用提供的工具来控制一个网络浏览器，以完成用户的请求。"
+                "请仔细分析用户的需求，并按顺序调用一个或多个工具来达成目标。"
+                "例如，要'总结一个网页'，你必须首先调用 'browser_navigate' 工具来打开那个网页，"
+                "然后再调用 'browser_snapshot' 工具来获取页面内容，最后对内容进行总结。"
+                "绝对不要回答说你无法访问外部网站，因为这些工具就是你访问网站的方式。"
+            )
+
             model = genai.GenerativeModel(
                 model_name='gemini-2.5-flash',
-                tools=gemini_tools
+                tools=gemini_tools,
+                system_instruction=system_instruction
             )
             chat = model.start_chat()
 
             print("--- 🤖 Gemini 浏览器控制机器人已就绪 (Docker 模式) ---")
-            print(f"✅ 模型已设置为: {model.model_name}") # 打印确认模型名称
+            print(f"✅ 模型已设置为: {model.model_name}")
             print("机器人已自动启动 Playwright Docker 容器。")
             print("现在可以直接下达指令。")
 
@@ -112,7 +119,7 @@ async def main():
                     print("👋 正在关闭...")
                     break
                 
-                # 增加交互日志
+                print("🤔 Gemini 正在思考中，请稍候...")
                 logging.info(f"正在将用户输入发送给 Gemini: '{user_input}'")
                 response = await chat.send_message_async(user_input)
                 logging.info("已从 Gemini 收到响应。正在检查工具调用...")
@@ -125,10 +132,19 @@ async def main():
                     tool_result = await mcp_client.call_tool(tool_name, tool_args)
                     logging.info(f"工具返回结果: {str(tool_result)[:300]}...")
                     
+                    print("🤔 Gemini 正在处理工具结果，请稍候...")
                     logging.info("正在将工具结果发回 Gemini...")
-                    response = await chat.send_message_async(
-                        genai.Part(function_response=genai.FunctionResponse(name=tool_name, response={"result": str(tool_result)}))
-                    )
+                    
+                    # *** 这是最终的、决定性的修改：我们直接构建一个字典 ***
+                    # 这个结构是基于 v0.8.5 版本的 API 预期
+                    tool_response_part = {
+                        "function_response": {
+                            "name": tool_name,
+                            "response": {"result": str(tool_result)}
+                        }
+                    }
+                    
+                    response = await chat.send_message_async(tool_response_part)
                     logging.info("已收到 Gemini 对工具结果的最终响应。")
 
                 print(f"✨ Gemini: {response.text}")
