@@ -1,0 +1,150 @@
+# ===================================================================
+# 这是一个通用的 .gitignore 文件模板。
+# 使用方法:
+# 1. 将此文件复制到你的项目根目录。
+# 2. 根据你的项目需求，取消注释或添加特定的条目。
+# ===================================================================
+
+# 忽略注释本身
+# .gitignore
+
+# ===================================================================
+# 依赖和包管理器 (Dependencies & Package Managers)
+# ===================================================================
+# 各种语言的依赖文件夹，这些应该在部署时重新安装，而不是上传。
+/node_modules
+/bower_components
+/vendor
+/jspm_packages
+/web_modules
+/target # Java/Maven
+/build # Gradle/Ant
+/dist # 通用构建输出目录
+/bin # 通用编译输出目录
+/obj # .NET
+/.venv # Python 虚拟环境
+/venv
+/env
+/.env
+/lib
+/lib64
+/include
+Pipfile.lock # Python Pipenv
+
+# ===================================================================
+# 构建和编译产物 (Build & Compilation Output)
+# ===================================================================
+*.o # C/C++ 编译对象文件
+*.a # 静态库文件
+*.so # 共享库文件
+*.dll
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.jar
+*.war
+*.ear
+
+# ===================================================================
+# 日志、缓存和临时文件 (Logs, Caches & Temp Files)
+# ===================================================================
+*.log
+*.log.*
+logs/
+*.cache
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+*.bak
+*.bak2
+*.DS_Store # macOS
+
+# ===================================================================
+# 操作系统和系统文件 (OS & System Files)
+# ===================================================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.Trash-*
+
+# ===================================================================
+# 开发工具和 IDE (Dev Tools & IDEs)
+# ===================================================================
+
+# Visual Studio Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/
+*.code-workspace
+
+# JetBrains (IntelliJ, PyCharm, WebStorm, etc.)
+.idea/
+*.iml
+*.iws
+*.ipr
+/out/
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Atom
+.atom/
+
+# NetBeans
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+.nb-gradle/
+
+# Eclipse
+.project
+.classpath
+.settings/
+
+# ===================================================================
+# 敏感信息 (Sensitive Information)
+# ===================================================================
+# 存储 API 密钥、密码、数据库凭证等的文件
+# 强烈建议不要将这些文件上传到仓库！
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+credentials.json
+config.json # 如果包含敏感信息
+
+# ===================================================================
+# 特定项目类型 (Project-specific)
+# ===================================================================
+# 在这里添加你项目特有的忽略规则。
+# 例如，对于一个网站项目：
+# /uploads
+# /images/generated
+
+# 例如，对于一个数据科学项目：
+# /data/*.csv # 如果数据文件太大
