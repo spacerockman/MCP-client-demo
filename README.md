@@ -1,74 +1,63 @@
-# 多模型 AI 浏览器控制机器人
+# AI 浏览器代理库
 
-这是一个 AI 驱动的聊天机器人，它可以使用 **Google Gemini**, **OpenAI API**, 或 **Azure OpenAI** 来理解自然语言指令，并通过 Playwright MCP 服务器来控制一个真实的浏览器，以完成网页自动化任务。
+这是一个可重用的 Python 库，它提供了一个 AI 驱动的浏览器代理，能够理解自然语言指令并执行复杂的网页自动化任务。
 
-这个机器人可以：
--   导航到指定网页。
--   根据指令与页面元素交互（点击、输入等）。
--   获取页面内容并进行总结。
--   执行多步骤的复杂网页任务。
+这个库的核心是 `BrowserAgent` 类，它可以被任何其他 Python 项目导入和使用，为其赋予强大的、由 AI 控制的浏览器操作能力。
 
-## 1. 环境准备 (Prerequisites)
+## 1. 核心功能
 
-在开始之前，请确保您的系统上已经安装了以下软件：
+-   **自然语言控制**：接受人类语言作为指令（例如，“总结这个网页”）。
+-   **Playwright 驱动**：在后台使用 Playwright 来确保强大的浏览器兼容性。
+-   **Docker 化执行**：所有浏览器操作都在一个隔离的、无需 `sudo` 权限的 Docker 容器中执行，保证了环境的纯净和安全。
+-   **可插拔的 AI**：当前使用 Google Gemini，但其架构易于扩展。
 
+## 2. 安装与配置 (最终的正确流程)
+
+### 步骤 2.1: 环境准备
 -   **Python 3.10+**
--   **Docker**: Docker Desktop (Windows/macOS) 或 Docker Engine (Linux)。请确保 Docker 服务正在运行。
+-   **Docker**: 确保 Docker 服务正在运行。
 -   **uv (推荐)**: 一个极速的 Python 包管理器。
-    -   macOS / Linux: `curl -LsSf https://astral.sh/uv/install.sh | sh`
-    -   Windows: `powershell -c "irm https://astral.sh/uv/install.ps1 | iex"`
 
-## 2. 安装与配置
-
-请按照以下步骤来设置和配置项目。
-
-### 步骤 2.1: 克隆并进入项目
-```bash
-# git clone <your-repo-url>
-cd <your-project-directory>
+### 步骤 2.2: 创建依赖声明文件
+在您的项目中，创建一个名为 `requirements.in` 的文件。这个文件只包含您项目**直接**使用的库。
+```text
+# requirements.in
+google-generativeai
+python-dotenv
+fastmcp
 ```
 
-### 步骤 2.2: 创建并激活 Python 虚拟环境
-```bash
-# 使用 uv 创建虚拟环境
-uv venv
+### 步骤 2.3: 编译并安装依赖
+我们将使用 `uv` 来自动解决并安装所有必需的依赖。
 
-# 激活虚拟环境
-# macOS / Linux
-source .venv/bin/activate
-# Windows
-.venv\Scripts\activate
-```
-
-### 步骤 2.3: 安装依赖
-使用 `requirements.txt` 文件来安装所有必需的 Python 库。
-```bash
-uv pip install -r requirements.txt
-```
-
-### 步骤 2.4: 创建配置文件
-您需要创建两个配置文件。
-
-1.  **创建 `.env` 文件 (用于 API 密钥)**
-    在项目根目录创建一个名为 `.env` 的文件，并根据您要使用的服务，填入相应的 API 密钥。
-    ```env
-    # .env
-
-    # --- Google Gemini ---
-    GOOGLE_API_KEY="your-google-api-key"
-
-    # --- OpenAI ---
-    OPENAI_API_KEY="your-openai-api-key"
-
-    # --- Azure OpenAI ---
-    AZURE_OPENAI_KEY="your-azure-openai-service-key"
-    AZURE_OPENAI_ENDPOINT="https://your-azure-endpoint.openai.azure.com/"
-    AZURE_OPENAI_DEPLOYMENT_NAME="your-deployment-name"
-    AZURE_OPENAI_API_VERSION="2024-02-01"
+1.  **创建并激活虚拟环境**
+    ```bash
+    uv venv
+    source .venv/bin/activate
     ```
 
-2.  **创建 `config.json` 文件 (用于服务器配置)**
-    在项目根目录创建一个名为 `config.json` 的文件。**此文件只包含 MCP 服务器的配置。**
+2.  **编译完整的依赖列表**
+    这个命令会读取 `requirements.in` 并生成一个包含所有子依赖及其精确版本的 `requirements.txt` 文件。
+    ```bash
+    uv pip compile requirements.in -o requirements.txt
+    ```
+
+3.  **同步您的环境**
+    这个命令会严格按照新生成的 `requirements.txt` 来安装所有包。
+    ```bash
+    uv pip sync requirements.txt
+    ```
+
+### 步骤 2.4: 创建配置文件
+在您的项目根目录中，需要放置以下两个配置文件。
+
+1.  **`.env` 文件 (用于 API 密钥)**
+    ```env
+    # .env
+    GOOGLE_API_KEY="your-google-api-key"
+    ```
+
+2.  **`config.json` 文件 (用于服务器配置)**
     ```json
     {
       "mcpServers": {
@@ -86,38 +75,42 @@ uv pip install -r requirements.txt
     }
     ```
 
-### 步骤 2.5: 在代码中选择要使用的 LLM
-打开 `chat.py` 文件，找到 `main()` 函数顶部的 `LLM_PROVIDER_TO_USE` 变量，并将其值修改为您想使用的服务。
+## 3. 如何使用 (集成到您的项目中)
+
+将 `browser_agent.py` 文件复制到您的项目中，然后像下面这样使用它。`example_usage.py` 文件是一个完整的、可运行的示例。
+
 ```python
-# chat.py
+# 在您的项目代码中 (例如 "项目 A")
+import asyncio
+from browser_agent import BrowserAgent
 
-async def main():
-    """主程序，根据代码内设置选择并运行 LLM 处理器。"""
-    
-    # *** 在这里选择要使用的 LLM 提供商 ***
-    # 可选项: "gemini", "openai", "azure"
-    LLM_PROVIDER_TO_USE = "gemini"
-    
-    # ... (代码其余部分)
+async def my_web_task():
+    # 1. 创建代理实例
+    agent = BrowserAgent()
+
+    # 2. 异步初始化代理 (这个昂贵的操作应该只在程序启动时执行一次)
+    await agent.initialize()
+
+    # 3. 假设您的项目通过 web search 得到了一个 URL
+    found_url = "https://www.nhk.or.jp/..."
+    prompt_for_agent = f"请访问 {found_url} 并总结其主要内容。"
+
+    # 4. 调用代理来处理这个 URL
+    summary = await agent.run_task(prompt_for_agent)
+
+    # 5. 使用代理返回的结果
+    print("网页总结:")
+    print(summary)
+
+
+# 运行您的异步函数
+if __name__ == "__main__":
+    asyncio.run(my_web_task())
 ```
 
-## 3. 运行机器人
+## 4. 运行示例
 
-所有配置完成后，您只需一个命令即可启动整个系统。
-
+要运行本项目自带的示例，只需执行：
 ```bash
-python3 chat.py
+python3 example_usage.py
 ```
-程序会根据您在 `chat.py` 中设置的 `LLM_PROVIDER_TO_USE` 变量，自动选择并初始化正确的 AI 模型。
-
-## 4. 如何使用
-
-机器人就绪后，您可以直接在 `👤 你:` 提示符后输入自然语言指令。
-
-**示例指令:**
--   **简单导航**: `navigate to https://www.google.com`
--   **获取内容并总结**: `总结这个网页的内容：https://www.nhk.or.jp/`
--   **多步任务**: `打开 aomodel.com，然后搜索 '最新的AI新闻', 告诉我第一个结果的标题`
-
-**如何退出:**
-在 `👤 你:` 提示符后，输入 `exit` 或 `quit` 并按回车。
