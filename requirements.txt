@@ -6,6 +6,7 @@ anyio==4.9.0
     # via
     #   httpx
     #   mcp
+    #   openai
     #   sse-starlette
     #   starlette
 attrs==25.3.0
@@ -32,6 +33,8 @@ cryptography==45.0.5
     # via authlib
 cyclopts==3.22.5
     # via fastmcp
+distro==1.9.0
+    # via openai
 dnspython==2.7.0
     # via email-validator
 docstring-parser==0.17.0
@@ -88,6 +91,7 @@ httpx==0.28.1
     # via
     #   fastmcp
     #   mcp
+    #   openai
 httpx-sse==0.4.1
     # via mcp
 idna==3.10
@@ -98,6 +102,8 @@ idna==3.10
     #   requests
 isodate==0.7.2
     # via openapi-core
+jiter==0.10.0
+    # via openai
 jsonschema==4.25.0
     # via
     #   mcp
@@ -124,6 +130,8 @@ mdurl==0.1.2
     # via markdown-it-py
 more-itertools==10.7.0
     # via openapi-core
+openai==1.98.0
+    # via -r requirements.in
 openapi-core==0.19.5
     # via fastmcp
 openapi-pydantic==0.5.1
@@ -163,6 +171,7 @@ pydantic==2.11.7
     #   fastmcp
     #   google-generativeai
     #   mcp
+    #   openai
     #   openapi-pydantic
     #   pydantic-settings
 pydantic-core==2.33.2
@@ -211,16 +220,21 @@ rsa==4.9.1
 six==1.17.0
     # via rfc3339-validator
 sniffio==1.3.1
-    # via anyio
+    # via
+    #   anyio
+    #   openai
 sse-starlette==3.0.2
     # via mcp
 starlette==0.47.2
     # via mcp
 tqdm==4.67.1
-    # via google-generativeai
+    # via
+    #   google-generativeai
+    #   openai
 typing-extensions==4.14.1
     # via
     #   google-generativeai
+    #   openai
     #   openapi-core
     #   pydantic
     #   pydantic-core

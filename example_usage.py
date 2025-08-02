@@ -23,7 +23,7 @@ async def main():
 
         # 3. 定义一个要执行的任务
         # 这是您的“项目 A”在搜索到 URL 后，想要执行的操作
-        task_prompt = "请访问这个页面 https://www.nhk.or.jp/shutoken-news/20250730/1000120241.html 并总结其主要内容。"
+        task_prompt = "释永信是谁，最近发生了什么"
 
         print(f"\n[任务]: {task_prompt}")
         print("\n[代理开始工作]...\n")
